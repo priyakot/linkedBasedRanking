@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.json.simple.JSONObject;
@@ -27,6 +27,7 @@ import org.json.simple.parser.ParseException;
 public class linkRankMain {
 	// Change the file path of the folder containing json files
 
+	static HashSet<String> classifiedTitleKeywords = new HashSet<String>();
 	static HashMap<String, Integer> typeHashMap = new HashMap<>();
 	static HashMap<String, Integer> companyHashMap = new HashMap<>();
 	static HashMap<String, Integer> titleHashMap = new HashMap<>();
@@ -37,9 +38,33 @@ public class linkRankMain {
 	public static void main(String[] args) throws IOException, ParseException {
 
 		parseArguments(args);
+		addKeywordsForTitle();
 		ArrayList<File> roots = new ArrayList<File>();
 		roots.addAll(Arrays.asList(File.listRoots()));
 		search();
+	}
+	
+	public static void addKeywordsForTitle() {
+		classifiedTitleKeywords.add("Analista".toLowerCase());
+		classifiedTitleKeywords.add("Cocinero".toLowerCase());
+		classifiedTitleKeywords.add("Consultor".toLowerCase());
+		classifiedTitleKeywords.add("Depósito".toLowerCase());
+		classifiedTitleKeywords.add("Profesor".toLowerCase());
+		classifiedTitleKeywords.add("Asistente".toLowerCase());
+		classifiedTitleKeywords.add("Mozo".toLowerCase());
+		classifiedTitleKeywords.add("Administrativa/o".toLowerCase());
+		classifiedTitleKeywords.add("Coordinador".toLowerCase());
+		classifiedTitleKeywords.add("Tecnico".toLowerCase());
+		classifiedTitleKeywords.add("Supervisor".toLowerCase());
+		classifiedTitleKeywords.add("Vigilador".toLowerCase());
+		classifiedTitleKeywords.add("Esteticista".toLowerCase());
+		classifiedTitleKeywords.add("Médicos".toLowerCase());
+		classifiedTitleKeywords.add("Programador".toLowerCase());
+		classifiedTitleKeywords.add("Mecánico".toLowerCase());
+		classifiedTitleKeywords.add("pintor".toLowerCase());
+		classifiedTitleKeywords.add("Cobranzas".toLowerCase());
+		classifiedTitleKeywords.add("Electricista".toLowerCase());
+		classifiedTitleKeywords.add("Redactor".toLowerCase());
 	}
 	
 	public static void parseArguments(String args[]) {
@@ -74,7 +99,7 @@ public class linkRankMain {
 				for (File file : listOfFiles) {
 					String path = file.getPath().replace('\\', '/');
 					System.out.println(path);
-					getJSONFile(path);
+					createMapsForRanking(path);
 
 					if (file.isDirectory()) {
 						new Searcher(path + "/").search();
@@ -141,7 +166,7 @@ public class linkRankMain {
 				File[] listOfFiles = fileEntry.listFiles();
 				
 				if (listOfFiles == null)
-					return; // Added condition check
+					continue; // Added condition check
 				for (File file : listOfFiles) {
 
 					String path = file.getPath().replace('\\', '/');
@@ -186,7 +211,13 @@ public class linkRankMain {
 
 						typeAvg = ((double) typeHashMap.get(jsonObject.get("jobtype")) / totalFiles) * 2;
 						locAvg = ((double) locHashMap.get(jsonObject.get("location")) / totalFiles) * 0.75;
-						titleAvg = ((double) titleHashMap.get(jsonObject.get("title")) / totalFiles) * 0.75;
+						for(String key: classifiedTitleKeywords) {
+							if(jsonObject.get("title").toString().toLowerCase().contains(key.toLowerCase())) {
+								titleAvg = ((double) titleHashMap.get(key) / totalFiles) * 0.75;
+								break;
+							}
+						}
+												
 						compAvg = ((double) companyHashMap.get(jsonObject.get("company")) / totalFiles) * 0.1;
 						System.out.println("typeAvg: " + typeAvg);
 						System.out.println("locAvg: " + locAvg);
@@ -254,7 +285,7 @@ public class linkRankMain {
 	 * @throws IOException
 	 * @throws ParseException
 	 */
-	private static HashMap<String, Integer> getJSONFile(String filePath)
+	private static HashMap<String, Integer> createMapsForRanking(String filePath)
 			throws IOException, ParseException {
 
 		JSONParser jsonParser = new JSONParser();
@@ -287,20 +318,23 @@ public class linkRankMain {
 			}
 
 			// checking title
-			if (titleHashMap.size() != 0 && titleHashMap.containsKey(title)) {
-				titleHashMap.put(title, titleHashMap.get(title) + 1);
-			} else {
-				titleHashMap.put(title, 1);
-
+			for(String key: classifiedTitleKeywords) {
+				if(title.toLowerCase().contains(key.toLowerCase())) {
+					if (titleHashMap.size() != 0 && titleHashMap.containsKey(key)) {
+						titleHashMap.put(key, titleHashMap.get(key) + 1);
+					} else {
+						titleHashMap.put(key, 1);
+					}
+					break;
+				}
 			}
-
+			
 			// checking company
 			if (companyHashMap.size() != 0
 					&& companyHashMap.containsKey(company)) {
 				companyHashMap.put(company, companyHashMap.get(company) + 1);
 			} else {
 				companyHashMap.put(company, 1);
-
 			}
 
 		} catch (FileNotFoundException e) {
