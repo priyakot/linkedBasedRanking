@@ -1,17 +1,17 @@
 package com.link.rank;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -19,13 +19,14 @@ import org.json.simple.parser.ParseException;
 
 /**
  * Link based analysis and ranking on employment job data
+ * 
  * @author priyakotwal
- *
+ * 
  */
 
 public class linkRankMain {
-	//Change the file path of the folder containing json files
-	
+	// Change the file path of the folder containing json files
+
 	static HashMap<String, Integer> typeHashMap = new HashMap<>();
 	static HashMap<String, Integer> companyHashMap = new HashMap<>();
 	static HashMap<String, Integer> titleHashMap = new HashMap<>();
@@ -38,20 +39,12 @@ public class linkRankMain {
 		ArrayList<File> roots = new ArrayList<File>();
 		roots.addAll(Arrays.asList(File.listRoots()));
 		search();
-
-		/**
-		 * for (File file : roots) { // new
-		 * Searcher(file.toString().replace('\\', '/')).search();
-		 * 
-		 * search(); }
-		 **/
-
 	}
 
 	public static void search() throws IOException, ParseException {
 		HashMap<String, Integer> linkMap = new HashMap<>();
 		File folder = new File(
-				"/Users/priyakotwal/Documents/sharedUbuntu/572/jData/");
+				"C:/Users/Aakarsh/csci572-bigdata/computrabajo-ar-20121107");
 		File[] listOfFiles = folder.listFiles();
 		int totalFiles = 0;
 		if (listOfFiles == null)
@@ -83,7 +76,7 @@ public class linkRankMain {
 		 * typeValue / totalFiles; System.out.println("Key: " + typeKey +
 		 * " Value:" + typeValue);
 		 * 
-	
+		 * 
 		 * //addRank(key, rank); }
 		 **/
 		for (Map.Entry<String, Integer> entry : typeHashMap.entrySet()) {
@@ -115,7 +108,7 @@ public class linkRankMain {
 		double rank = 0;
 		double typeAvg = 0, titleAvg = 0, locAvg = 0, compAvg = 0;
 		File folder = new File(
-				"/Users/priyakotwal/Documents/sharedUbuntu/572/jData/");
+				"C:/Users/Aakarsh/csci572-bigdata/computrabajo-ar-20121107");
 		File[] listOfFiles = folder.listFiles();
 		if (listOfFiles == null)
 			return; // Added condition check
@@ -141,27 +134,30 @@ public class linkRankMain {
 				 * 
 				 * }
 				 **/
-		/**		System.out.println("Total Files: " + totalFiles);
-				System.out.println("jsonJobType:" + jsonObject.get("jobtype"));
-				System.out.println("jsonTitleType:" + jsonObject.get("title"));
-				System.out.println("jsonCompanyType:"
-						+ jsonObject.get("company"));
-				System.out.println("jsonLocType:" + jsonObject.get("location"));
+				/**
+				 * System.out.println("Total Files: " + totalFiles);
+				 * System.out.println("jsonJobType:" +
+				 * jsonObject.get("jobtype"));
+				 * System.out.println("jsonTitleType:" +
+				 * jsonObject.get("title"));
+				 * System.out.println("jsonCompanyType:" +
+				 * jsonObject.get("company")); System.out.println("jsonLocType:"
+				 * + jsonObject.get("location"));
+				 * 
+				 * System.out.println("hashType: " +
+				 * typeHashMap.get(jsonObject.get("jobtype")));
+				 * System.out.println("hashTitle: " +
+				 * titleHashMap.get(jsonObject.get("title")));
+				 * System.out.println("hashType: " +
+				 * locHashMap.get(jsonObject.get("location")));
+				 * System.out.println("hashType: " +
+				 * companyHashMap.get(jsonObject.get("company")));
+				 **/
 
-				System.out.println("hashType: "
-						+ typeHashMap.get(jsonObject.get("jobtype")));
-				System.out.println("hashTitle: "
-						+ titleHashMap.get(jsonObject.get("title")));
-				System.out.println("hashType: "
-						+ locHashMap.get(jsonObject.get("location")));
-				System.out.println("hashType: "
-						+ companyHashMap.get(jsonObject.get("company"))); **/
-
-				typeAvg = ((double) typeHashMap.get(jsonObject.get("jobtype")) / totalFiles) * 0.4;
-				locAvg = ((double) locHashMap.get(jsonObject.get("location")) / totalFiles) * 0.3;
-				titleAvg = ((double) titleHashMap.get(jsonObject.get("title")) / totalFiles) * 0.2;
-				compAvg = ((double) companyHashMap.get(jsonObject
-						.get("company")) / totalFiles) * 0.1;
+				typeAvg = ((double) typeHashMap.get(jsonObject.get("jobtype")) / totalFiles) * 2;
+				locAvg = ((double) locHashMap.get(jsonObject.get("location")) / totalFiles) * 0.75;
+				titleAvg = ((double) titleHashMap.get(jsonObject.get("title")) / totalFiles) * 0.75;
+				compAvg = ((double) companyHashMap.get(jsonObject.get("company")) / totalFiles) * 0.1;
 				System.out.println("typeAvg: " + typeAvg);
 				System.out.println("locAvg: " + locAvg);
 				System.out.println("titleAvg: " + titleAvg);
@@ -170,20 +166,22 @@ public class linkRankMain {
 				/**
 				 * if (typeHashMap.containsKey(jsonObject.get("jobtype")) ) {
 				 * typeAvg =
-				 * ((typeHashMap.get(jsonObject.get("jobtype"))/totalFiles)*0.4);
-				 * System.out.println("typeAvg: "+typeAvg); } else { typeAvg =
-				 * 0; }
+				 * ((typeHashMap.get(jsonObject.get("jobtype"))/totalFiles
+				 * )*0.4); System.out.println("typeAvg: "+typeAvg); } else {
+				 * typeAvg = 0; }
 				 * 
 				 * 
 				 * } else { compAvg = 0; }
 				 **/
 				rank = (typeAvg + titleAvg + locAvg + compAvg) / 4;
-
-				jsonObject.put("rank", rank);
+				System.out.println("Boost: "+ rank);
+				jsonObject.put("boost", rank);
 				jsonString = JSONObject.toJSONString(jsonObject);
-			/**	System.out.println("jsonString" + jsonString);
-				System.out.println("json : "
-						+ JSONObject.toJSONString(jsonObject)); **/
+				/**
+				 * System.out.println("jsonString" + jsonString);
+				 * System.out.println("json : " +
+				 * JSONObject.toJSONString(jsonObject));
+				 **/
 
 				if (file.isDirectory()) {
 					new Searcher(path + "/").search();
@@ -192,13 +190,16 @@ public class linkRankMain {
 				reader.close();
 			}
 
-			//rewriting the json file with the new data (rank)
-			FileWriter fw = new FileWriter(path);
-
+			// rewriting the json file with the new data (rank)
+			//FileWriter fw = new FileWriter(path);
+			OutputStreamWriter writer = new OutputStreamWriter(
+				     new FileOutputStream(path),
+				     Charset.forName("UTF-8").newEncoder() 
+				 );
 			try {
 
-				System.out.println(jsonString);
-				fw.write(JSONObject.toJSONString(jsonObject));
+				//System.out.println(jsonString);
+				writer.write(JSONObject.toJSONString(jsonObject));
 				System.out.println("\nJSON Object: "
 						+ JSONObject.toJSONString(jsonObject));
 
@@ -206,8 +207,8 @@ public class linkRankMain {
 				e.printStackTrace();
 
 			} finally {
-				fw.flush();
-				fw.close();
+				writer.flush();
+				writer.close();
 			}
 
 		}
@@ -215,6 +216,7 @@ public class linkRankMain {
 
 	/**
 	 * Fuction to get the countValue of each of the considered fields
+	 * 
 	 * @param filePath
 	 * @return
 	 * @throws IOException
@@ -222,7 +224,7 @@ public class linkRankMain {
 	 */
 	private static HashMap<String, Integer> getJSONFile(String filePath)
 			throws IOException, ParseException {
-	
+
 		JSONParser jsonParser = new JSONParser();
 		FileReader reader;
 		try {
