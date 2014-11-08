@@ -31,14 +31,29 @@ public class linkRankMain {
 	static HashMap<String, Integer> companyHashMap = new HashMap<>();
 	static HashMap<String, Integer> titleHashMap = new HashMap<>();
 	static HashMap<String, Integer> locHashMap = new HashMap<>();
-
+	static String inputFolderPath = null;
 	static String jsonString = null;
 
 	public static void main(String[] args) throws IOException, ParseException {
 
+		parseArguments(args);
 		ArrayList<File> roots = new ArrayList<File>();
 		roots.addAll(Arrays.asList(File.listRoots()));
 		search();
+	}
+	
+	public static void parseArguments(String args[]) {
+
+		for (int i = 0; i < args.length; i = i + 2) {
+			if (args[i].equals("-i")) {
+				inputFolderPath = args[i + 1];
+			} 
+		}
+
+		if (inputFolderPath == null ) {
+			System.out.println("Incomplete or incorrect input command");
+			System.exit(0);
+		}
 	}
 
 	public static void search() throws IOException, ParseException {
@@ -51,7 +66,7 @@ public class linkRankMain {
 			return; // Added condition check
 */		
 		int totalFiles = 0;
-		File folder = new File("C:/Users/Aakarsh/csci572-bigdata/small-data");
+		File folder = new File(inputFolderPath);
 		for (final File fileEntry : folder.listFiles()) {
 			if (fileEntry.isDirectory()) {
 				File[] listOfFiles = fileEntry.listFiles();
@@ -120,7 +135,7 @@ public class linkRankMain {
 		double rank = 0;
 		double typeAvg = 0, titleAvg = 0, locAvg = 0, compAvg = 0;
 		
-		File folder = new File("C:/Users/Aakarsh/csci572-bigdata/small-data");
+		File folder = new File(inputFolderPath);
 		for (final File fileEntry : folder.listFiles()) {
 			if (fileEntry.isDirectory()) {
 				File[] listOfFiles = fileEntry.listFiles();
