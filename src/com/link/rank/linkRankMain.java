@@ -43,22 +43,34 @@ public class linkRankMain {
 
 	public static void search() throws IOException, ParseException {
 		HashMap<String, Integer> linkMap = new HashMap<>();
-		File folder = new File(
-				"C:/Users/Aakarsh/csci572-bigdata/computrabajo-ar-20121107");
+		/*File folder = new File(
+				);
 		File[] listOfFiles = folder.listFiles();
 		int totalFiles = 0;
 		if (listOfFiles == null)
 			return; // Added condition check
-		for (File file : listOfFiles) {
-			String path = file.getPath().replace('\\', '/');
-			System.out.println(path);
-			getJSONFile(path);
+*/		
+		int totalFiles = 0;
+		File folder = new File("C:/Users/Aakarsh/csci572-bigdata/small-data");
+		for (final File fileEntry : folder.listFiles()) {
+			if (fileEntry.isDirectory()) {
+				File[] listOfFiles = fileEntry.listFiles();
+				
+				for (File file : listOfFiles) {
+					String path = file.getPath().replace('\\', '/');
+					System.out.println(path);
+					getJSONFile(path);
 
-			if (file.isDirectory()) {
-				new Searcher(path + "/").search();
+					if (file.isDirectory()) {
+						new Searcher(path + "/").search();
+					}
+					totalFiles++;
+				}				
 			}
-			totalFiles++;
 		}
+		
+		
+		
 
 		/**
 		 * Weights jobtype :0.4 location :0.3 title :0.2 company :0.1
@@ -107,110 +119,115 @@ public class linkRankMain {
 			ParseException {
 		double rank = 0;
 		double typeAvg = 0, titleAvg = 0, locAvg = 0, compAvg = 0;
-		File folder = new File(
-				"C:/Users/Aakarsh/csci572-bigdata/computrabajo-ar-20121107");
-		File[] listOfFiles = folder.listFiles();
-		if (listOfFiles == null)
-			return; // Added condition check
-		for (File file : listOfFiles) {
+		
+		File folder = new File("C:/Users/Aakarsh/csci572-bigdata/small-data");
+		for (final File fileEntry : folder.listFiles()) {
+			if (fileEntry.isDirectory()) {
+				File[] listOfFiles = fileEntry.listFiles();
+				
+				if (listOfFiles == null)
+					return; // Added condition check
+				for (File file : listOfFiles) {
 
-			String path = file.getPath().replace('\\', '/');
-			JSONParser jsonParser = new JSONParser();
-			FileReader reader = null;
-			reader = new FileReader(path);
+					String path = file.getPath().replace('\\', '/');
+					JSONParser jsonParser = new JSONParser();
+					FileReader reader = null;
+					reader = new FileReader(path);
 
-			JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
-			try {
+					JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
+					try {
 
-				/**
-				 * if (key.equalsIgnoreCase((String) jsonObject.get("jobtype")))
-				 * { jsonObject.put("rank", rank); jsonString =
-				 * JSONObject.toJSONString(jsonObject);
-				 * System.out.println("jsonString"+jsonString);
-				 * System.out.println("json : " +
-				 * JSONObject.toJSONString(jsonObject));
-				 * 
-				 * } else {
-				 * 
-				 * }
-				 **/
-				/**
-				 * System.out.println("Total Files: " + totalFiles);
-				 * System.out.println("jsonJobType:" +
-				 * jsonObject.get("jobtype"));
-				 * System.out.println("jsonTitleType:" +
-				 * jsonObject.get("title"));
-				 * System.out.println("jsonCompanyType:" +
-				 * jsonObject.get("company")); System.out.println("jsonLocType:"
-				 * + jsonObject.get("location"));
-				 * 
-				 * System.out.println("hashType: " +
-				 * typeHashMap.get(jsonObject.get("jobtype")));
-				 * System.out.println("hashTitle: " +
-				 * titleHashMap.get(jsonObject.get("title")));
-				 * System.out.println("hashType: " +
-				 * locHashMap.get(jsonObject.get("location")));
-				 * System.out.println("hashType: " +
-				 * companyHashMap.get(jsonObject.get("company")));
-				 **/
+						/**
+						 * if (key.equalsIgnoreCase((String) jsonObject.get("jobtype")))
+						 * { jsonObject.put("rank", rank); jsonString =
+						 * JSONObject.toJSONString(jsonObject);
+						 * System.out.println("jsonString"+jsonString);
+						 * System.out.println("json : " +
+						 * JSONObject.toJSONString(jsonObject));
+						 * 
+						 * } else {
+						 * 
+						 * }
+						 **/
+						/**
+						 * System.out.println("Total Files: " + totalFiles);
+						 * System.out.println("jsonJobType:" +
+						 * jsonObject.get("jobtype"));
+						 * System.out.println("jsonTitleType:" +
+						 * jsonObject.get("title"));
+						 * System.out.println("jsonCompanyType:" +
+						 * jsonObject.get("company")); System.out.println("jsonLocType:"
+						 * + jsonObject.get("location"));
+						 * 
+						 * System.out.println("hashType: " +
+						 * typeHashMap.get(jsonObject.get("jobtype")));
+						 * System.out.println("hashTitle: " +
+						 * titleHashMap.get(jsonObject.get("title")));
+						 * System.out.println("hashType: " +
+						 * locHashMap.get(jsonObject.get("location")));
+						 * System.out.println("hashType: " +
+						 * companyHashMap.get(jsonObject.get("company")));
+						 **/
 
-				typeAvg = ((double) typeHashMap.get(jsonObject.get("jobtype")) / totalFiles) * 2;
-				locAvg = ((double) locHashMap.get(jsonObject.get("location")) / totalFiles) * 0.75;
-				titleAvg = ((double) titleHashMap.get(jsonObject.get("title")) / totalFiles) * 0.75;
-				compAvg = ((double) companyHashMap.get(jsonObject.get("company")) / totalFiles) * 0.1;
-				System.out.println("typeAvg: " + typeAvg);
-				System.out.println("locAvg: " + locAvg);
-				System.out.println("titleAvg: " + titleAvg);
-				System.out.println("compAvg: " + compAvg);
+						typeAvg = ((double) typeHashMap.get(jsonObject.get("jobtype")) / totalFiles) * 2;
+						locAvg = ((double) locHashMap.get(jsonObject.get("location")) / totalFiles) * 0.75;
+						titleAvg = ((double) titleHashMap.get(jsonObject.get("title")) / totalFiles) * 0.75;
+						compAvg = ((double) companyHashMap.get(jsonObject.get("company")) / totalFiles) * 0.1;
+						System.out.println("typeAvg: " + typeAvg);
+						System.out.println("locAvg: " + locAvg);
+						System.out.println("titleAvg: " + titleAvg);
+						System.out.println("compAvg: " + compAvg);
 
-				/**
-				 * if (typeHashMap.containsKey(jsonObject.get("jobtype")) ) {
-				 * typeAvg =
-				 * ((typeHashMap.get(jsonObject.get("jobtype"))/totalFiles
-				 * )*0.4); System.out.println("typeAvg: "+typeAvg); } else {
-				 * typeAvg = 0; }
-				 * 
-				 * 
-				 * } else { compAvg = 0; }
-				 **/
-				rank = (typeAvg + titleAvg + locAvg + compAvg) / 4;
-				System.out.println("Boost: "+ rank);
-				jsonObject.put("boost", rank);
-				jsonString = JSONObject.toJSONString(jsonObject);
-				/**
-				 * System.out.println("jsonString" + jsonString);
-				 * System.out.println("json : " +
-				 * JSONObject.toJSONString(jsonObject));
-				 **/
+						/**
+						 * if (typeHashMap.containsKey(jsonObject.get("jobtype")) ) {
+						 * typeAvg =
+						 * ((typeHashMap.get(jsonObject.get("jobtype"))/totalFiles
+						 * )*0.4); System.out.println("typeAvg: "+typeAvg); } else {
+						 * typeAvg = 0; }
+						 * 
+						 * 
+						 * } else { compAvg = 0; }
+						 **/
+						rank = (typeAvg + titleAvg + locAvg + compAvg) / 4;
+						System.out.println("Boost: "+ rank);
+						jsonObject.put("boost", rank);
+						jsonString = JSONObject.toJSONString(jsonObject);
+						/**
+						 * System.out.println("jsonString" + jsonString);
+						 * System.out.println("json : " +
+						 * JSONObject.toJSONString(jsonObject));
+						 **/
 
-				if (file.isDirectory()) {
-					new Searcher(path + "/").search();
-				}
-			} finally {
-				reader.close();
+						if (file.isDirectory()) {
+							new Searcher(path + "/").search();
+						}
+					} finally {
+						reader.close();
+					}
+
+					// rewriting the json file with the new data (rank)
+					//FileWriter fw = new FileWriter(path);
+					OutputStreamWriter writer = new OutputStreamWriter(
+						     new FileOutputStream(path),
+						     Charset.forName("UTF-8").newEncoder() 
+						 );
+					try {
+
+						//System.out.println(jsonString);
+						writer.write(JSONObject.toJSONString(jsonObject));
+						System.out.println("\nJSON Object: "
+								+ JSONObject.toJSONString(jsonObject));
+
+					} catch (Exception e) {
+						e.printStackTrace();
+
+					} finally {
+						writer.flush();
+						writer.close();
+					}
+
+				}				
 			}
-
-			// rewriting the json file with the new data (rank)
-			//FileWriter fw = new FileWriter(path);
-			OutputStreamWriter writer = new OutputStreamWriter(
-				     new FileOutputStream(path),
-				     Charset.forName("UTF-8").newEncoder() 
-				 );
-			try {
-
-				//System.out.println(jsonString);
-				writer.write(JSONObject.toJSONString(jsonObject));
-				System.out.println("\nJSON Object: "
-						+ JSONObject.toJSONString(jsonObject));
-
-			} catch (Exception e) {
-				e.printStackTrace();
-
-			} finally {
-				writer.flush();
-				writer.close();
-			}
-
 		}
 	}
 
