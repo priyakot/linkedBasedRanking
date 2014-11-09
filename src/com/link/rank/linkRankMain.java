@@ -1,11 +1,13 @@
 package com.link.rank;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,20 +30,40 @@ public class linkRankMain {
 	// Change the file path of the folder containing json files
 
 	static HashSet<String> classifiedTitleKeywords = new HashSet<String>();
-	static HashMap<String, Integer> typeHashMap = new HashMap<>();
-	static HashMap<String, Integer> companyHashMap = new HashMap<>();
-	static HashMap<String, Integer> titleHashMap = new HashMap<>();
-	static HashMap<String, Integer> locHashMap = new HashMap<>();
+	static HashMap<String, Integer> typeHashMap = new HashMap<String, Integer>();
+	static HashMap<String, Integer> companyHashMap = new HashMap<String, Integer>();
+	static HashMap<String, Integer> titleHashMap = new HashMap<String, Integer>();
+	static HashMap<String, Integer> locHashMap = new HashMap<String, Integer>();
 	static String inputFolderPath = null;
 	static String jsonString = null;
+	static PrintWriter log = null;
 
 	public static void main(String[] args) throws IOException, ParseException {
 
-		parseArguments(args);
+		init(args);
+		
 		addKeywordsForTitle();
-		ArrayList<File> roots = new ArrayList<File>();
-		roots.addAll(Arrays.asList(File.listRoots()));
 		search();
+		performCleaning();
+	}
+	
+	public static void init(String[] args) {
+		parseArguments(args);
+		
+		try {
+			System.out.println("Path to log file : "+ inputFolderPath+"/metadaGen-logs.txt");
+		    log = new PrintWriter(inputFolderPath+"/metadataGen-logs.txt", "UTF-8");
+		} catch (IOException ex) {
+		  System.err.println("log file buffered writer creation error");
+		}
+	}
+	
+	public static void performCleaning() {
+		try {
+			log.close();
+		} catch (Exception ex) {
+			System.err.println("log file close error");
+		}
 	}
 	
 	public static void addKeywordsForTitle() {
@@ -76,7 +98,7 @@ public class linkRankMain {
 		}
 
 		if (inputFolderPath == null ) {
-			System.out.println("Incomplete or incorrect input command");
+			System.err.println("Incomplete or incorrect input command");
 			System.exit(0);
 		}
 	}
@@ -98,7 +120,7 @@ public class linkRankMain {
 				
 				for (File file : listOfFiles) {
 					String path = file.getPath().replace('\\', '/');
-					System.out.println(path);
+					//log.println(path);
 					createMapsForRanking(path);
 
 					if (file.isDirectory()) {
@@ -131,25 +153,25 @@ public class linkRankMain {
 		 * 
 		 * //addRank(key, rank); }
 		 **/
-		for (Map.Entry<String, Integer> entry : typeHashMap.entrySet()) {
-			System.out.println("Type Key: " + entry.getKey() + " Value:"
+		/*for (Map.Entry<String, Integer> entry : typeHashMap.entrySet()) {
+			log.println("Type Key: " + entry.getKey() + " Value:"
 					+ entry.getValue());
 		}
 
 		for (Map.Entry<String, Integer> entry1 : titleHashMap.entrySet()) {
-			System.out.println("Title Key: " + entry1.getKey() + " Value:"
+			log.println("Title Key: " + entry1.getKey() + " Value:"
 					+ entry1.getValue());
 		}
 
 		for (Map.Entry<String, Integer> entry2 : locHashMap.entrySet()) {
-			System.out.println("Loc Key: " + entry2.getKey() + " Value:"
+			log.println("Loc Key: " + entry2.getKey() + " Value:"
 					+ entry2.getValue());
 		}
 
 		for (Map.Entry<String, Integer> entry3 : companyHashMap.entrySet()) {
-			System.out.println("Comp Key: " + entry3.getKey() + " Value:"
+			log.println("Comp Key: " + entry3.getKey() + " Value:"
 					+ entry3.getValue());
-		}
+		}*/
 
 		addRank(totalFiles);
 	}
@@ -176,39 +198,7 @@ public class linkRankMain {
 
 					JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
 					try {
-
-						/**
-						 * if (key.equalsIgnoreCase((String) jsonObject.get("jobtype")))
-						 * { jsonObject.put("rank", rank); jsonString =
-						 * JSONObject.toJSONString(jsonObject);
-						 * System.out.println("jsonString"+jsonString);
-						 * System.out.println("json : " +
-						 * JSONObject.toJSONString(jsonObject));
-						 * 
-						 * } else {
-						 * 
-						 * }
-						 **/
-						/**
-						 * System.out.println("Total Files: " + totalFiles);
-						 * System.out.println("jsonJobType:" +
-						 * jsonObject.get("jobtype"));
-						 * System.out.println("jsonTitleType:" +
-						 * jsonObject.get("title"));
-						 * System.out.println("jsonCompanyType:" +
-						 * jsonObject.get("company")); System.out.println("jsonLocType:"
-						 * + jsonObject.get("location"));
-						 * 
-						 * System.out.println("hashType: " +
-						 * typeHashMap.get(jsonObject.get("jobtype")));
-						 * System.out.println("hashTitle: " +
-						 * titleHashMap.get(jsonObject.get("title")));
-						 * System.out.println("hashType: " +
-						 * locHashMap.get(jsonObject.get("location")));
-						 * System.out.println("hashType: " +
-						 * companyHashMap.get(jsonObject.get("company")));
-						 **/
-
+		
 						typeAvg = ((double) typeHashMap.get(jsonObject.get("jobtype")) / totalFiles) * 2;
 						locAvg = ((double) locHashMap.get(jsonObject.get("location")) / totalFiles) * 0.75;
 						for(String key: classifiedTitleKeywords) {
@@ -219,31 +209,16 @@ public class linkRankMain {
 						}
 												
 						compAvg = ((double) companyHashMap.get(jsonObject.get("company")) / totalFiles) * 0.1;
-						System.out.println("typeAvg: " + typeAvg);
-						System.out.println("locAvg: " + locAvg);
-						System.out.println("titleAvg: " + titleAvg);
-						System.out.println("compAvg: " + compAvg);
-
-						/**
-						 * if (typeHashMap.containsKey(jsonObject.get("jobtype")) ) {
-						 * typeAvg =
-						 * ((typeHashMap.get(jsonObject.get("jobtype"))/totalFiles
-						 * )*0.4); System.out.println("typeAvg: "+typeAvg); } else {
-						 * typeAvg = 0; }
-						 * 
-						 * 
-						 * } else { compAvg = 0; }
-						 **/
+						/*log.println("typeAvg: " + typeAvg);
+						log.println("locAvg: " + locAvg);
+						log.println("titleAvg: " + titleAvg);
+						log.println("compAvg: " + compAvg);*/
+												
 						rank = (typeAvg + titleAvg + locAvg + compAvg) / 4;
-						System.out.println("Boost: "+ rank);
+						log.println("Boost: "+ rank);
 						jsonObject.put("boost", rank);
 						jsonString = JSONObject.toJSONString(jsonObject);
-						/**
-						 * System.out.println("jsonString" + jsonString);
-						 * System.out.println("json : " +
-						 * JSONObject.toJSONString(jsonObject));
-						 **/
-
+						
 						if (file.isDirectory()) {
 							new Searcher(path + "/").search();
 						}
@@ -259,10 +234,9 @@ public class linkRankMain {
 						 );
 					try {
 
-						//System.out.println(jsonString);
+						//log.println(jsonString);
 						writer.write(JSONObject.toJSONString(jsonObject));
-						System.out.println("\nJSON Object: "
-								+ JSONObject.toJSONString(jsonObject));
+						//log.println("\nJSON Object: " + JSONObject.toJSONString(jsonObject));
 
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -305,7 +279,6 @@ public class linkRankMain {
 				typeHashMap.put(jobtype, typeHashMap.get(jobtype) + 1);
 			} else {
 				typeHashMap.put(jobtype, 1);
-
 			}
 
 			// checking location
@@ -318,6 +291,7 @@ public class linkRankMain {
 			}
 
 			// checking title
+			Boolean isAmongKey = false;
 			for(String key: classifiedTitleKeywords) {
 				if(title.toLowerCase().contains(key.toLowerCase())) {
 					if (titleHashMap.size() != 0 && titleHashMap.containsKey(key)) {
@@ -325,9 +299,13 @@ public class linkRankMain {
 					} else {
 						titleHashMap.put(key, 1);
 					}
+					isAmongKey = true;
 					break;
-				}
+				} 
 			}
+			/*if(!isAmongKey) {
+				System.out.println("Title is not being classified: " + title);
+			}*/
 			
 			// checking company
 			if (companyHashMap.size() != 0
