@@ -34,4 +34,3 @@ java -jar NameOfTheExportedJarFile.jar -i "Path to the folder containing the jso
 
 Note: Please refer the Search Project for query execution<br><br>
 
-Jobs Classification Table for tagging 
